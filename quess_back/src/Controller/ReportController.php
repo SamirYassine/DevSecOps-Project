@@ -2,7 +2,7 @@
 
 
 namespace App\Controller;   
-require_once '../assets/dompdf/autoload.inc.php';
+//require_once '../assets/dompdf/autoload.inc.php';
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -468,7 +468,7 @@ $dompdf->render();
 $pdfContent = $dompdf->output();
 
 // Set the file path and name for saving the PDF on the server
-$outputDir = 'C:\Users\xxkil\Quess\quess_back\public\PDFs\\';
+$outputDir = $this->getParameter('kernel.project_dir') . '/public/PDFs/';
 $currentDateTime = date('Y-m-d H-i-s'); // Get current date and time
 $titlePdf = $orgName . '_Report_' . $currentDateTime;
 $pdfFilePath = $outputDir . str_replace(['é', 'ô'], ['e', 'o'], $titlePdf) . '.pdf';
