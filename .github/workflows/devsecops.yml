@@ -44,7 +44,11 @@ jobs:
           tools: composer
 
       - name: Install dependencies
-        run: composer install --no-progress --prefer-dist
+        run: composer install --no-progress --prefer-dist --no-scripts
+        env:
+          APP_ENV: test
+          APP_SECRET: ci_secret_not_real
+          DATABASE_URL: mysql://user:password@127.0.0.1:3306/quess
 
       - name: Composer Audit (SCA - vulnerable packages)
         run: composer audit
