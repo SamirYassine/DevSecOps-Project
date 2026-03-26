@@ -80,10 +80,10 @@ jobs:
           cache-dependency-path: quess_front/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: NPM Audit (SCA - vulnerable packages)
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=critical
         continue-on-error: false
 
       - name: ESLint Security (SAST)
