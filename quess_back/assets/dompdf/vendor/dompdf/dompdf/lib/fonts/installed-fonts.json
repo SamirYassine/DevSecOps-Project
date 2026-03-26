@@ -1,0 +1,11 @@
+{
+    "new_font": {
+        "normal": "new_font_normal_bae6fea4a1a901b3fb5b05b819af33fa"
+    },
+    "opensans": {
+        "normal": "OpenSans-Regular",
+        "italic": "OpenSans-Italic",
+        "bold": "OpenSans-Bold",
+        "bold_italic": "OpenSans-BoldItalic"
+    }
+}

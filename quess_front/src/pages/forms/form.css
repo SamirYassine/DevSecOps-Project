@@ -1,0 +1,153 @@
+/* Container for the form */
+.form-container {
+  max-width: fit-content;
+  margin: auto;
+  padding: 20px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  display: grid;
+  flex-direction: column;
+}
+
+/* .input-container label {
+  margin-right: 10px;
+} */
+label {
+  margin-bottom: 5px;
+}
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.first-image,
+.second-image {
+  width: 90px;
+}
+
+h3 {
+  margin: 0 20px; /* Add some horizontal margin to the h3 for spacing */
+}
+
+/* Style for the Datepicker */
+.dd {
+  /* width: 100%; */
+  margin-bottom: 20px;
+  margin-top: 10px;
+}
+
+/* Style for form fields */
+.formField {
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+.formField + .formField {
+  margin-top: 20px;
+}
+
+/* Style for the submit button */
+button[type="submit"] {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Hover effect for the submit button */
+button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+  text-align: left;
+}
+
+.date-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 1rem;
+}
+
+.input-container-1 {
+  width: 45%;
+  display: flex;
+  align-items: center;
+  gap: 2.4rem;
+}
+
+.input-container-2 {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 2.4rem;
+}
+
+.input-container-simpler {
+  width: 100%;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.input-container-simpler .css-p51h6s-MuiInputBase-input-MuiOutlinedInput-input {
+  width: 22rem !important;
+}
+
+.config-section {
+  margin-top: 2rem;
+}
+
+.input-air-config {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.input-air-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin: 1rem;
+  gap: 1rem;
+}
+
+.incubation-container {
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.input-incubation {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.table-cell {
+  border: 1px solid black;
+  padding: 0.5rem;
+  color: white;
+}
+
+.table {
+  margin: 1rem;
+  border-collapse: collapse;
+}
+
+.table-cell-container .css-73jt3b-MuiTableCell-root {
+  text-align: center !important;
+}
+.gen-info {
+  margin-top: 2rem;
+}

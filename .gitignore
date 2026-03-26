@@ -1,0 +1,34 @@
+# Environment files - NEVER commit real secrets
+.env
+.env.local
+.env.*.local
+
+# Symfony
+quess_back/.env.local
+quess_back/.env.prod
+quess_back/var/
+quess_back/vendor/
+quess_back/public/bundles/
+
+# React / Node
+quess_front/node_modules/
+quess_front/build/
+quess_front/src/.env
+quess_front/src/.env.local
+node_modules/
+
+# JWT keys (private key especially)
+quess_back/config/jwt/private.pem
+quess_back/config/jwt/public.pem
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
