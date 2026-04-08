@@ -1,0 +1,47 @@
+---
+# QUESS — VPS Provisioning Playbook
+# Provisions an Ubuntu 22.04 server with K3s, Docker, Helm, and a deploy user.
+#
+# Usage:
+#   ansible-playbook -i inventory.yml playbook.yml
+#
+# Tags:
+#   ansible-playbook playbook.yml --tags "k3s,helm"  (run specific roles)
+
+- name: Provision QUESS VPS
+  hosts: vps
+  become: true
+
+  vars:
+    deploy_user: deploy
+    deploy_ssh_pub_key: "{{ lookup('file', '~/.ssh/oracle_vps_key.pub') }}"
+    k3s_version: "v1.29.4+k3s1"
+    allowed_ports:
+      - "22/tcp"    # SSH
+      - "80/tcp"    # HTTP
+      - "443/tcp"   # HTTPS
+      - "6443/tcp"  # K3s API server
+
+  roles:
+    - role: common
+      tags: [common]
+    - role: firewall
+      tags: [firewall]
+    - role: docker
+      tags: [docker]
+    - role: k3s
+      tags: [k3s]
+    - role: helm
+      tags: [helm]
+    - role: deploy-user
+      tags: [deploy-user]
+
+  post_tasks:
+    - name: Print completion summary
+      ansible.builtin.debug:
+        msg: |
+          VPS provisioned successfully!
+          - K3s: kubectl get nodes
+          - Helm: helm version
+          - Deploy user: {{ deploy_user }}
+          - SSH: ssh {{ deploy_user }}@{{ ansible_host }}

@@ -1,0 +1,11 @@
+---
+# Ansible inventory for QUESS infrastructure
+# Replace <VPS_IP> with your Oracle Cloud VPS public IP
+
+all:
+  hosts:
+    vps:
+      ansible_host: "{{ lookup('env', 'VPS_HOST') | default('141.147.6.140', true) }}"
+      ansible_user: ubuntu
+      ansible_ssh_private_key_file: ~/.ssh/oracle_vps_key
+      ansible_python_interpreter: /usr/bin/python3

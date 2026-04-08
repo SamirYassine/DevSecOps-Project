@@ -1,0 +1,15 @@
+# Backend .dockerignore
+.git
+.gitignore
+.env.local
+.env.prod
+var/cache/
+var/log/
+vendor/
+node_modules/
+tests/
+*.md
+docker-compose*.yml
+compose*.yaml
+.vscode/
+.idea/

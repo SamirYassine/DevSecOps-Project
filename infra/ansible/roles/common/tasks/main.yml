@@ -1,0 +1,44 @@
+---
+# Role: common
+# Updates packages and installs essential system tools.
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Upgrade all packages
+  ansible.builtin.apt:
+    upgrade: safe
+
+- name: Install essential packages
+  ansible.builtin.apt:
+    name:
+      - curl
+      - wget
+      - git
+      - htop
+      - vim
+      - unzip
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - software-properties-common
+      - python3-pip
+    state: present
+
+- name: Set timezone to Europe/Paris
+  community.general.timezone:
+    name: Europe/Paris
+
+- name: Enable automatic security updates
+  ansible.builtin.apt:
+    name: unattended-upgrades
+    state: present
+
+- name: Ensure NTP is running
+  ansible.builtin.systemd:
+    name: systemd-timesyncd
+    state: started
+    enabled: true

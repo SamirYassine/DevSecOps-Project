@@ -1,0 +1,68 @@
+---
+# Role: deploy-user
+# Creates a dedicated deploy user for CI/CD SSH access.
+
+- name: Create deploy user
+  ansible.builtin.user:
+    name: "{{ deploy_user }}"
+    shell: /bin/bash
+    groups: docker
+    append: true
+    create_home: true
+
+- name: Create .ssh directory for deploy user
+  ansible.builtin.file:
+    path: "/home/{{ deploy_user }}/.ssh"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0700"
+
+- name: Add SSH public key for deploy user
+  ansible.builtin.authorized_key:
+    user: "{{ deploy_user }}"
+    key: "{{ deploy_ssh_pub_key }}"
+    state: present
+
+- name: Create .kube directory for deploy user
+  ansible.builtin.file:
+    path: "/home/{{ deploy_user }}/.kube"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0755"
+
+- name: Copy kubeconfig for deploy user
+  ansible.builtin.copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: "/home/{{ deploy_user }}/.kube/config"
+    remote_src: true
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0600"
+
+- name: Update deploy user kubeconfig server address
+  ansible.builtin.replace:
+    path: "/home/{{ deploy_user }}/.kube/config"
+    regexp: "https://127.0.0.1:6443"
+    replace: "https://{{ ansible_host }}:6443"
+
+- name: Allow deploy user to run kubectl without sudo
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers.d/deploy
+    line: "{{ deploy_user }} ALL=(ALL) NOPASSWD: /usr/local/bin/kubectl, /usr/local/bin/k3s"
+    create: true
+    mode: "0440"
+    validate: "visudo -cf %s"
+
+- name: Verify deploy user can access kubectl
+  ansible.builtin.command: kubectl get nodes
+  become_user: "{{ deploy_user }}"
+  environment:
+    KUBECONFIG: "/home/{{ deploy_user }}/.kube/config"
+  register: deploy_kubectl
+  changed_when: false
+
+- name: Display deploy user test
+  ansible.builtin.debug:
+    var: deploy_kubectl.stdout_lines
