@@ -1,5 +1,5 @@
 # ---- Stage 1: Dependencies ----
-FROM composer:2 AS deps
+FROM composer:2.7 AS deps
 
 WORKDIR /app
 
