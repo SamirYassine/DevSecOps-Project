@@ -79,10 +79,11 @@ jobs:
           cache-dependency-path: quess_front/package-lock.json
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: NPM Audit (Skipped)
-        run: echo "Skipping npm audit for frontend dependencies"
+      - name: NPM Audit (SCA - vulnerable packages)
+        run: npm audit --audit-level=critical
+        continue-on-error: false
 
       - name: ESLint Security (SAST)
         run: |
@@ -117,7 +118,6 @@ jobs:
 
       - name: Scan Frontend Image
         uses: aquasecurity/trivy-action@master
-        continue-on-error: true
         with:
           image-ref: quess-frontend:${{ github.sha }}
           format: "table"

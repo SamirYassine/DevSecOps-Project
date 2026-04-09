@@ -17,7 +17,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: frontend
-          image: ghcr.io/samiryassine/quess-frontend:latest
+          image: ghcr.io/samiryassine/devsecops-project/quess-frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80

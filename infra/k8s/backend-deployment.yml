@@ -17,7 +17,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: backend
-          image: ghcr.io/samiryassine/quess-backend:latest
+          image: ghcr.io/samiryassine/devsecops-project/quess-backend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 9000
