@@ -10,6 +10,8 @@ node_modules/
 tests/
 *.md
 docker-compose*.yml
+# Exclude vendored asset copy — dompdf is installed via composer into vendor/
+assets/dompdf/
 compose*.yaml
 .vscode/
 .idea/
