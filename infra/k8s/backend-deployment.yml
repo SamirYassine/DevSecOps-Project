@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quess-backend
+  namespace: quess
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quess-backend
+  template:
+    metadata:
+      labels:
+        app: quess-backend
+    spec:
+      imagePullSecrets:
+        - name: ghcr-secret
+      containers:
+        - name: backend
+          image: ghcr.io/samiryassine/quess-backend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9000
+          env:
+            - name: APP_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: quess-config
+                  key: APP_ENV
+            - name: APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: quess-secrets
+                  key: APP_SECRET
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: quess-secrets
+                  key: DATABASE_URL
+            - name: JWT_PASSPHRASE
+              valueFrom:
+                secretKeyRef:
+                  name: quess-secrets
+                  key: JWT_PASSPHRASE
+            - name: CORS_ALLOW_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: quess-config
+                  key: CORS_ALLOW_ORIGIN
+            - name: MAILER_DSN
+              valueFrom:
+                configMapKeyRef:
+                  name: quess-config
+                  key: MAILER_DSN
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quess-backend
+  namespace: quess
+spec:
+  selector:
+    app: quess-backend
+  ports:
+    - port: 9000
+      targetPort: 9000

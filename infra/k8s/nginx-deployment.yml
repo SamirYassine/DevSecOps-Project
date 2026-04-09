@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-backend-config
+  namespace: quess
+data:
+  default.conf: |
+    server {
+        listen 80;
+        server_name _;
+        root /var/www/symfony/public;
+        index index.php;
+
+        location / {
+            try_files $uri $uri/ /index.php$is_args$args;
+        }
+
+        location ~ ^/index\.php(/|$) {
+            fastcgi_pass quess-backend:9000;
+            fastcgi_split_path_info ^(.+\.php)(/.*)$;
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+            fastcgi_param DOCUMENT_ROOT $realpath_root;
+            fastcgi_buffer_size 128k;
+            fastcgi_buffers 4 256k;
+            internal;
+        }
+
+        location ~ \.php$ {
+            return 404;
+        }
+
+        access_log /dev/stdout;
+        error_log /dev/stderr;
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quess-nginx
+  namespace: quess
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quess-nginx
+  template:
+    metadata:
+      labels:
+        app: quess-nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-backend-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quess-nginx
+  namespace: quess
+spec:
+  selector:
+    app: quess-nginx
+  ports:
+    - port: 80
+      targetPort: 80

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quess-config
+  namespace: quess
+data:
+  APP_ENV: "prod"
+  APP_DEBUG: "0"
+  MYSQL_DATABASE: "quess"
+  MYSQL_USER: "quess_user"
+  JWT_SECRET_KEY: "%kernel.project_dir%/config/jwt/private.pem"
+  JWT_PUBLIC_KEY_PATH: "%kernel.project_dir%/config/jwt/public.pem"
+  CORS_ALLOW_ORIGIN: "^https?://(localhost|quess\\..*\\.nip\\.io)(:[0-9]+)?$"
+  MAILER_DSN: "null://null"
