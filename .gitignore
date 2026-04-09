@@ -21,6 +21,12 @@ node_modules/
 quess_back/config/jwt/private.pem
 quess_back/config/jwt/public.pem
 
+# SSH keys - never commit private keys
+id_ed25519*
+id_rsa*
+*.pem
+*.key
+
 # IDE
 .vscode/
 .idea/
