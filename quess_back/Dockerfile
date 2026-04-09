@@ -14,7 +14,8 @@ LABEL org.opencontainers.image.source="https://github.com/OWNER/QUESS"
 LABEL org.opencontainers.image.description="QUESS Backend - Symfony 5.4 API"
 
 # Install system dependencies and PHP extensions in one layer, then clean up
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends \
     libpng-dev libonig-dev libxml2-dev \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && apt-get clean \
