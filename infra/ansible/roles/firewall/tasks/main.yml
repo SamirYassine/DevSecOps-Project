@@ -21,6 +21,13 @@
     direction: outgoing
     default: allow
 
+# K3s flannel/CNI requires forwarding between pod CIDRs.
+# UFW defaults FORWARD to DROP which silently breaks pod-to-pod traffic.
+- name: Set default forward policy to allow (required by K3s CNI / flannel)
+  community.general.ufw:
+    direction: routed
+    default: allow
+
 - name: Allow required ports
   community.general.ufw:
     rule: allow

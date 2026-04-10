@@ -1,0 +1,47 @@
+# Traefik HelmChartConfig for K3s on Oracle Cloud (NAT'd public IP)
+#
+# Why hostNetwork: true?
+#   OCI's public IP (141.147.6.140) is NAT'd by the OCI gateway → arrives at
+#   the host as 10.0.0.117:80. klipper-lb (ServiceLB) cannot bind to the host
+#   port in this topology. hostNetwork makes Traefik own the port directly on
+#   the kernel network stack, so it receives the packet after OCI's DNAT.
+#
+# Why ports 80/443 instead of 8000/8443?
+#   With net.ipv4.ip_unprivileged_port_start=80 (set by common Ansible role),
+#   non-root processes may bind to port 80+. No iptables REDIRECT or
+#   NET_BIND_SERVICE capability required.
+#
+# Drop the file at /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
+# (done by the k3s Ansible role). K3s Helm controller reconciles it automatically.
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    # Bind Traefik directly to the host network interface so OCI-DNAT'd
+    # traffic lands on the listening socket without any iptables REDIRECT.
+    hostNetwork: true
+
+    # Service type ClusterIP is sufficient; hostNetwork provides external access.
+    service:
+      type: ClusterIP
+
+    # Listen on standard ports — allowed by ip_unprivileged_port_start=80.
+    ports:
+      web:
+        port: 80
+        exposedPort: 80
+      websecure:
+        port: 443
+        exposedPort: 443
+
+    # Do NOT add NET_BIND_SERVICE here — ip_unprivileged_port_start makes it
+    # unnecessary, and some K3s versions ignore additionalCapabilities anyway.
+    securityContext:
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
+      allowPrivilegeEscalation: false

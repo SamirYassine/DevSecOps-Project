@@ -8,3 +8,7 @@ all:
       ansible_user: ubuntu
       ansible_ssh_private_key_file: ~/.ssh/samir.key
       ansible_python_interpreter: /usr/bin/python3
+      # OCI: public IP is NAT'd by the OCI gateway; private IP is on enp0s6.
+      # K3s needs --node-ip set to the private interface so intra-cluster
+      # traffic stays on the correct interface.
+      k3s_node_private_ip: "10.0.0.117"

@@ -11,7 +11,11 @@
   ansible.builtin.shell: |
     curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ k3s_version }}" sh -s - \
       --write-kubeconfig-mode 644 \
-      --tls-san {{ ansible_host }}
+      --tls-san {{ ansible_host }} \
+      --advertise-address={{ k3s_node_private_ip | default(ansible_default_ipv4.address) }} \
+      --disable=servicelb \
+      --node-external-ip={{ ansible_host }} \
+      --node-ip={{ k3s_node_private_ip | default(ansible_default_ipv4.address) }}
   args:
     creates: /usr/local/bin/k3s
   when: not k3s_binary.stat.exists
@@ -65,3 +69,30 @@
 - name: Display K3s nodes
   ansible.builtin.debug:
     var: nodes_status.stdout_lines
+
+# ── Traefik configuration ────────────────────────────────────────────────────
+# Drop a HelmChartConfig into K3s's auto-manifest directory. K3s's Helm
+# controller watches this directory and reconciles Traefik automatically —
+# no manual helm/kubectl steps needed after provisioning.
+- name: Copy Traefik HelmChartConfig to K3s auto-manifest directory
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../k8s/traefik-config.yml"
+    dest: /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Wait for Traefik to reconcile after HelmChartConfig update
+  ansible.builtin.command: >
+    k3s kubectl rollout status deployment/traefik
+    -n kube-system --timeout=120s
+  register: traefik_rollout
+  changed_when: false
+  ignore_errors: true   # First run: deployment may not exist yet; that's OK.
+
+- name: Verify Traefik is listening on port 80
+  ansible.builtin.wait_for:
+    host: "127.0.0.1"
+    port: 80
+    timeout: 60
+  ignore_errors: true   # Non-fatal — print status in next task instead.
