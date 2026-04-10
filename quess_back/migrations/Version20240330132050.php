@@ -19,8 +19,23 @@ final class Version20240330132050 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE air ADD air_samplers LONGTEXT NOT NULL COMMENT \'(DC2Type:array)\', DROP air_sampler_id');
+        $schemaManager = $this->connection->createSchemaManager();
+
+        if (!$schemaManager->tablesExist(['air'])) {
+            return;
+        }
+
+        $columns = $schemaManager->listTableColumns('air');
+        $hasAirSamplers = isset($columns['air_samplers']);
+        $hasAirSamplerId = isset($columns['air_sampler_id']);
+
+        if (!$hasAirSamplers) {
+            $this->addSql("ALTER TABLE air ADD air_samplers LONGTEXT NOT NULL COMMENT '(DC2Type:array)'");
+        }
+
+        if ($hasAirSamplerId) {
+            $this->addSql('ALTER TABLE air DROP air_sampler_id');
+        }
     }
 
     
