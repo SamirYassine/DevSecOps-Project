@@ -31,7 +31,8 @@ COPY . .
 
 # Fix permissions for Symfony cache/logs
 RUN mkdir -p var/cache var/log \
-    && chown -R www-data:www-data var/
+    && touch .env \
+    && chown -R www-data:www-data var/ .env
 
 USER www-data
 
