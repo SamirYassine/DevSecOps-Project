@@ -1,0 +1,29 @@
+# Copy this file to terraform.tfvars and fill in real values.
+# terraform.tfvars is gitignored — never commit it.
+
+kubeconfig_path     = "/etc/rancher/k3s/k3s.yaml"
+namespace           = "quess"
+image_registry      = "ghcr.io/samiryassine/devsecops-project"
+backend_image_tag   = "latest"
+frontend_image_tag  = "latest"
+ingress_host        = "quess.141.147.6.140.nip.io"
+
+mysql_database      = "quess"
+mysql_user          = "quess"
+mysql_password      = "CHANGE_ME"
+mysql_root_password = "CHANGE_ME"
+
+app_secret          = "CHANGE_ME_32_CHARS_MIN"
+jwt_passphrase      = "CHANGE_ME"
+
+# Base64-encoded PEM keys:
+# cat config/jwt/private.pem | base64 -w 0
+jwt_private_key_b64 = "CHANGE_ME_BASE64"
+# cat config/jwt/public.pem | base64 -w 0
+jwt_public_key_b64  = "CHANGE_ME_BASE64"
+
+# Base64-encoded Docker config JSON for GHCR:
+# kubectl create secret docker-registry ghcr-secret \
+#   --docker-server=ghcr.io --docker-username=USER --docker-password=PAT \
+#   --dry-run=client -o jsonpath='{.data.\.dockerconfigjson}'
+ghcr_secret_b64     = "CHANGE_ME_BASE64"
