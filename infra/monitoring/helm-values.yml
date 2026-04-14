@@ -1,0 +1,59 @@
+# kube-prometheus-stack Helm values for QUESS on K3s (arm64)
+# Deployed in the 'monitoring' namespace
+
+prometheus:
+  prometheusSpec:
+    retention: 7d
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 5Gi
+
+grafana:
+  adminPassword: "QuessGrafana2026!"
+  persistence:
+    enabled: true
+    size: 1Gi
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - grafana.141.147.6.140.nip.io
+    paths:
+      - /
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+alertmanager:
+  enabled: false
+
+# K3s does not expose these control-plane metrics endpoints
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
+
+# Disable default storage class check (K3s uses its own local-path)
+defaultRules:
+  rules:
+    etcd: false
+    kubeScheduler: false
