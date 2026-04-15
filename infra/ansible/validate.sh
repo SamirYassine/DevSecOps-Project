@@ -1,41 +1,28 @@
 #!/bin/bash
-# Validate Day 2 deliverables
-cd /mnt/c/Users/xxkil/Downloads/QUESS-main/QUESS-main
+# Day 6 validation: checks helm-values.yml and grafana-dashboard.json
+cd /mnt/c/Users/xxkil/Downloads/QUESS-main/QUESS-main/infra/monitoring
 
-echo "=== Pipeline YAML syntax ==="
+echo "=== Helm values YAML syntax ==="
 python3 -c "
 import yaml
-with open('.github/workflows/devsecops.yml') as f:
+with open('helm-values.yml') as f:
     data = yaml.safe_load(f)
-jobs = list(data.get('jobs', {}).keys())
-print('Jobs found:', jobs)
-print('OK: devsecops.yml is valid YAML')
+sections = list(data.keys())
+print('Sections:', sections)
+print('OK: helm-values.yml is valid YAML')
 "
 
 echo ""
-echo "=== Backend Dockerfile ==="
-if grep -q "FROM.*AS deps" quess_back/Dockerfile; then
-    echo "OK: Multi-stage build detected"
-else
-    echo "WARN: No multi-stage build"
-fi
-if grep -q "apt-get clean" quess_back/Dockerfile; then
-    echo "OK: apt cache cleanup present"
-fi
-if grep -q "USER www-data" quess_back/Dockerfile; then
-    echo "OK: Non-root user set"
-fi
-
-echo ""
-echo "=== .dockerignore files ==="
-for dir in quess_back quess_front; do
-    if [ -f "$dir/.dockerignore" ]; then
-        lines=$(wc -l < "$dir/.dockerignore")
-        echo "OK: $dir/.dockerignore exists ($lines lines)"
-    else
-        echo "MISSING: $dir/.dockerignore"
-    fi
-done
+echo "=== Grafana dashboard JSON syntax ==="
+python3 -c "
+import json
+with open('grafana-dashboard.json') as f:
+    data = json.load(f)
+print('Title:', data['title'])
+print('Panels:', len(data['panels']))
+print('UID:', data['uid'])
+print('OK: grafana-dashboard.json is valid JSON')
+"
 
 echo ""
 echo "Done."

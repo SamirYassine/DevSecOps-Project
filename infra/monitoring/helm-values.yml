@@ -1,5 +1,12 @@
 # kube-prometheus-stack Helm values for QUESS on K3s (arm64)
 # Deployed in the 'monitoring' namespace
+#
+# Deploy command:
+#   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+#   helm repo update
+#   helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+#     --namespace monitoring --create-namespace \
+#     -f infra/monitoring/helm-values.yml
 
 prometheus:
   prometheusSpec:
@@ -24,13 +31,6 @@ grafana:
   persistence:
     enabled: true
     size: 1Gi
-  ingress:
-    enabled: true
-    ingressClassName: traefik
-    hosts:
-      - grafana.141.147.6.140.nip.io
-    paths:
-      - /
   resources:
     requests:
       cpu: 50m
@@ -38,11 +38,36 @@ grafana:
     limits:
       cpu: 200m
       memory: 256Mi
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: web
+    hosts:
+      - grafana.141.147.6.140.nip.io
+    path: /
+    pathType: Prefix
 
 alertmanager:
   enabled: false
 
-# K3s does not expose these control-plane metrics endpoints
+prometheus-node-exporter:
+  # Traefik on this VPS already binds host port 9100.
+  # Keep node-exporter on 9101 to avoid DaemonSet scheduling conflicts.
+  service:
+    port: 9101
+    targetPort: 9101
+  tolerations:
+    - operator: Exists
+      effect: NoSchedule
+    - operator: Exists
+      effect: NoExecute
+  hostRootFsMount:
+    enabled: false
+    mountPropagation: HostToContainer
+
+
+# K3s does not expose control-plane metrics endpoints -- disable to avoid scrape errors
 kubeEtcd:
   enabled: false
 kubeControllerManager:
@@ -52,7 +77,6 @@ kubeScheduler:
 kubeProxy:
   enabled: false
 
-# Disable default storage class check (K3s uses its own local-path)
 defaultRules:
   rules:
     etcd: false

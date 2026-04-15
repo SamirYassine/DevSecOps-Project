@@ -45,11 +45,13 @@
     group: ubuntu
     mode: "0600"
 
-- name: Update kubeconfig server address
+- name: Update kubeconfig server address to private IP
+  # OCI uses 1:1 NAT — the VPS cannot hairpin-connect to its own public IP.
+  # Use the private IP for local kubectl/helm commands on the node itself.
   ansible.builtin.replace:
     path: /home/ubuntu/.kube/config
     regexp: "https://127.0.0.1:6443"
-    replace: "https://{{ ansible_host }}:6443"
+    replace: "https://{{ k3s_node_private_ip | default(ansible_default_ipv4.address) }}:6443"
 
 - name: Create kubectl symlink
   ansible.builtin.file:
