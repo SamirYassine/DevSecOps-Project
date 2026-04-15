@@ -8,27 +8,18 @@ data:
     server {
         listen 80;
         server_name _;
-        root /var/www/symfony/public;
+        root /usr/share/nginx/html;
         index index.php;
 
         location / {
-            try_files $uri $uri/ /index.php$is_args$args;
-        }
-
-        location ~ ^/index\.php(/|$) {
-            fastcgi_pass quess-backend:9000;
-            fastcgi_split_path_info ^(.+\.php)(/.*)$;
             include fastcgi_params;
             fastcgi_param SCRIPT_FILENAME /var/www/symfony/public/index.php;
+            fastcgi_param SCRIPT_NAME /index.php;
             fastcgi_param DOCUMENT_ROOT /var/www/symfony/public;
-            fastcgi_param PATH_INFO $fastcgi_path_info;
+            fastcgi_param PATH_INFO $uri;
+            fastcgi_pass quess-backend:9000;
             fastcgi_buffer_size 128k;
             fastcgi_buffers 4 256k;
-            internal;
-        }
-
-        location ~ \.php$ {
-            return 404;
         }
 
         access_log /dev/stdout;
@@ -72,7 +63,7 @@ spec:
             failureThreshold: 3
           livenessProbe:
             httpGet:
-              path: /
+              path: /api/health
               port: 80
             initialDelaySeconds: 30
             periodSeconds: 20
