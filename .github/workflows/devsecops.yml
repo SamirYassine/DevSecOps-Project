@@ -197,6 +197,17 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Upload infra manifests to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "infra/k8s/namespace.yml,infra/k8s/configmap.yml,infra/k8s/mysql-statefulset.yml,infra/k8s/backend-deployment.yml,infra/k8s/nginx-deployment.yml,infra/k8s/frontend-deployment.yml,infra/k8s/ingress.yml,infra/k8s/network-policy.yml,infra/monitoring/helm-values.yml"
+          target: "/tmp/quess-deploy"
+
       - name: Deploy backend and frontend with kubectl set image
         uses: appleboy/ssh-action@v1.2.0
         env:
@@ -211,8 +222,26 @@ jobs:
           script: |
             set -euo pipefail
 
+            DEPLOY_DIR="/tmp/quess-deploy/infra"
             BACKEND_IMAGE="ghcr.io/${IMAGE_REPO}/quess-backend:${IMAGE_TAG}"
             FRONTEND_IMAGE="ghcr.io/${IMAGE_REPO}/quess-frontend:${IMAGE_TAG}"
+
+            # Apply Kubernetes manifests (excluding secrets template by design).
+            kubectl apply -f "${DEPLOY_DIR}/k8s/namespace.yml"
+            kubectl apply -f "${DEPLOY_DIR}/k8s/configmap.yml"
+            kubectl apply -f "${DEPLOY_DIR}/k8s/mysql-statefulset.yml"
+            kubectl apply -f "${DEPLOY_DIR}/k8s/backend-deployment.yml"
+            kubectl apply -f "${DEPLOY_DIR}/k8s/nginx-deployment.yml"
+            kubectl apply -f "${DEPLOY_DIR}/k8s/frontend-deployment.yml"
+            kubectl apply -f "${DEPLOY_DIR}/k8s/ingress.yml"
+            kubectl apply -f "${DEPLOY_DIR}/k8s/network-policy.yml"
+
+            # Keep monitoring release aligned with repo values.
+            helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
+            helm repo update
+            helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+              --namespace monitoring --create-namespace \
+              -f "${DEPLOY_DIR}/monitoring/helm-values.yml"
 
             kubectl -n quess set image deployment/quess-backend backend="${BACKEND_IMAGE}"
             kubectl -n quess set image deployment/quess-frontend frontend="${FRONTEND_IMAGE}"
