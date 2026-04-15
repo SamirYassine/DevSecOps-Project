@@ -63,6 +63,16 @@ spec:
                 secretKeyRef:
                   name: quess-secrets
                   key: JWT_PASSPHRASE
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: quess-secrets
+                  key: JWT_PRIVATE_KEY
+            - name: JWT_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: quess-secrets
+                  key: JWT_PUBLIC_KEY
             - name: CORS_ALLOW_ORIGIN
               valueFrom:
                 configMapKeyRef:
